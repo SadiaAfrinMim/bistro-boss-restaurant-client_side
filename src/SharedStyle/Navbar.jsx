@@ -1,24 +1,37 @@
-import React from 'react';
+import React, { useContext } from 'react';
+import { Link, NavLink } from 'react-router-dom';
+import { AuthContext } from '../provider/AuthProvider';
+import Swal from 'sweetalert2'
 
 const Navbar = () => {
+  const {user,logOut} = useContext(AuthContext)
+  const handleLogOut=()=>{
+    logOut()
+    .then(()=>{})
+    .catch(error=>console.log(error))
+  }
   const navOption = 
     <>
-     <li><a>Item 1</a></li>
-      <li>
-        <details>
-          <summary>Parent</summary>
-          <ul className="p-2">
-            <li><a>Submenu 1</a></li>
-            <li><a>Submenu 2</a></li>
-          </ul>
-        </details>
-      </li>
-      <li><a>Item 3</a></li>
+     <li><Link to={'/'}>Home</Link></li>
+     <li><Link to={'/menu'}>Our Menu</Link></li>
+     <li><Link to={'/order/salad'}>Order Food</Link></li>
+    
+     <li><Link to={'/signup'}>Sign UP</Link></li>
+     {
+      user? <>
+      <span>{user.displayName}</span>
+      <button onClick={handleLogOut} className='btn btn-ghost'>Logout</button>
+      </>:<>
+      <li><Link to={'/login'}>Login</Link></li>
+      </>
+     }
+      
+    
     </>
   
     return (
         <div>
-            <div className="navbar bg-base-100">
+            <div className="navbar max-w-screen-xl fixed z-10 bg-opacity-30 bg-black text-white">
   <div className="navbar-start">
     <div className="dropdown">
       <div tabIndex={0} role="button" className="btn btn-ghost lg:hidden">
