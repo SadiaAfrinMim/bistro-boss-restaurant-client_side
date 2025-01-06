@@ -3,10 +3,13 @@ import { Helmet } from 'react-helmet-async';
 import { useForm } from 'react-hook-form';
 import { AuthContext } from '../../provider/AuthProvider';
 import Swal from 'sweetalert2';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import useAxiosPublic from '../../Component/Hooks/useAxiosPublic';
+import SocialLogin from '../../Component/Social Login/SocialLogin';
 
 
 const SignUp = () => {
+  const axiosPublic= useAxiosPublic()
   const{createUser,updateUserProfile} = useContext(AuthContext)
     const {
         register,
@@ -27,9 +30,18 @@ const SignUp = () => {
     
                 updateUserProfile(data.name, data.photoURL)
                     .then(() => {
-                        console.log('Profile is updated');
-                        reset();
-                        Swal.fire({
+                      const userInfo = {
+                        name: data.name, 
+                        email: data.email
+                      }
+
+
+                      axiosPublic.post('/users',userInfo)
+                      .then(res=>{
+                        if(res.data.insertedId){
+                          console.log('user added to the database')
+                          reset();
+                          Swal.fire({
                             position: "top-end",
                             icon: "success",
                             title: "Your work has been saved",
@@ -37,6 +49,11 @@ const SignUp = () => {
                             timer: 1500,
                         });
                         navigate('/');
+                          
+                        }
+                      })
+                      
+                      
                     })
                     .catch((error) => console.log('Error updating profile:', error));
             })
@@ -111,9 +128,13 @@ const SignUp = () => {
               </div>
               <div className="form-control mt-6">
               <input type="submit" value="Sign Up" className="btn btn-primary" /> 
+              <p className='px-6'><small>Already have an account</small><Link to={'/login'}>Login</Link></p>
+              
+
 
               </div>
             </form>
+            <SocialLogin></SocialLogin>
           </div>
         </div>
       </div>

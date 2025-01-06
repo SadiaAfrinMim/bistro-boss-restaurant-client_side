@@ -8,59 +8,57 @@ import { AuthContext } from '../../provider/AuthProvider';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import Swal from 'sweetalert2';
+import SocialLogin from '../../Component/Social Login/SocialLogin';
+
 
 const Login = () => {
     const [disabled, setDisabled] = useState(true);
     const { signIn } = useContext(AuthContext);
-    const location = useLocation()
-    const navigate = useNavigate()
-    let from = location.state?.from?.pathname || "/"
+    const location = useLocation();
+    const navigate = useNavigate();
+    const from = location.state?.from?.pathname || '/';
 
     // Initialize captcha
     useEffect(() => {
         loadCaptchaEnginge(6);
     }, []);
 
-    const handleLogin = (event) => {
+    const handleLogin = async (event) => {
         event.preventDefault();
         const form = event.target;
         const email = form.email.value;
         const password = form.password.value;
 
-        signIn(email, password)
-            .then((result) => {
-                const user = result.user;
-                console.log(user);
-                Swal.fire({
-                    title: 'User login successful',
-                    text: 'Welcome back!',
-                    icon: 'success',
-                });
-                navigate(from,{replace:true})
-            })
-            .catch((error) => {
-                console.error(error.message);
-                Swal.fire({
-                    title: 'Error!',
-                    text: error.message,
-                    icon: 'error',
-                });
+        try {
+            const result = await signIn(email, password);
+            console.log(result.user);
+
+            Swal.fire({
+                title: 'Login Successful',
+                text: 'Welcome back!',
+                icon: 'success',
             });
+
+            navigate(from, { replace: true });
+        } catch (error) {
+            console.error(error.message);
+            Swal.fire({
+                title: 'Login Failed',
+                text: error.message,
+                icon: 'error',
+            });
+        }
     };
 
     const handleValidateCaptcha = (e) => {
-        const user_captcha_value = e.target.value;
-        if (validateCaptcha(user_captcha_value)) {
-            setDisabled(false); // Enable login button
-        } else {
-            setDisabled(true); // Keep login button disabled
-        }
+        const userCaptchaValue = e.target.value;
+        setDisabled(!validateCaptcha(userCaptchaValue)); // Enable/Disable login button
     };
 
     return (
         <div className="hero bg-base-200 min-h-screen">
             <Helmet>
-                <title>Bistro Boss || Sign in</title>
+                <title>Bistro Boss || Login</title>
             </Helmet>
             <div className="hero-content flex-col lg:flex-row-reverse">
                 {/* Right Side Content */}
@@ -140,8 +138,10 @@ const Login = () => {
                             </Link>
                         </small>
                     </p>
+                    <SocialLogin></SocialLogin>
                 </div>
             </div>
+        
         </div>
     );
 };
